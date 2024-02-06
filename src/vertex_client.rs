@@ -66,7 +66,13 @@ impl<T: TokenProvider + Clone> VertexClient<T> {
 
         let txt_json = resp.text().await?;
         tracing::debug!("Vertex API Response: {}", txt_json);
-        Ok(serde_json::from_str(&txt_json).unwrap())
+        match serde_json::from_str(&txt_json) {
+            Ok(response) => Ok(response),
+            Err(e) => {
+                eprintln!("Failed to parse response: {} / {}", txt_json, e);
+                Err(e.into())
+            }
+        }
     }
 
     /// Prompts a conversation to the model.
@@ -92,7 +98,7 @@ impl<T: TokenProvider + Clone> VertexClient<T> {
             .0
             .into_iter()
             .flat_map(|chunk| {
-                chunk.candidates.into_iter().flat_map(|candidate| {
+                chunk.candidates.unwrap().into_iter().flat_map(|candidate| {
                     candidate
                         .content
                         .parts
@@ -133,7 +139,7 @@ impl<T: TokenProvider + Clone> VertexClient<T> {
             .0
             .into_iter()
             .flat_map(|chunk| {
-                chunk.candidates.into_iter().flat_map(|candidate| {
+                chunk.candidates.unwrap().into_iter().flat_map(|candidate| {
                     candidate
                         .content
                         .parts

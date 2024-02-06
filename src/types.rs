@@ -66,8 +66,9 @@ pub struct GenerateContentResponse(pub Vec<ResponseStreamChunk>);
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ResponseStreamChunk {
-    pub candidates: Vec<Candidate>,
+    pub candidates: Option<Vec<Candidate>>,
     pub usage_metadata: Option<UsageMetadata>,
+    pub error: Option<Error>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -127,4 +128,25 @@ pub struct FunctionParameters {
 pub struct FunctionParametersProperty {
     pub r#type: String,
     pub description: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Error {
+    pub code: i32,
+    pub message: String,
+    pub status: String,
+    pub details: Vec<ErrorDetail>,
+}
+
+// TODO: Make ErrorDetail an enum and map to the different types of errors.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ErrorDetail {
+    #[serde(rename = "@type")]
+    pub r#type: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Link {
+    pub description: String,
+    pub url: String,
 }

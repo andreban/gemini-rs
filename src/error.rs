@@ -7,6 +7,7 @@ pub enum Error {
     Env(std::env::VarError),
     HttpClient(reqwest::Error),
     Token(gcp_auth::Error),
+    Serde(serde_json::Error),
 }
 
 impl Display for Error {
@@ -15,6 +16,7 @@ impl Display for Error {
             Error::Env(e) => write!(f, "Environment variable error: {}", e),
             Error::HttpClient(e) => write!(f, "HTTP Client error: {}", e),
             Error::Token(e) => write!(f, "Token error: {}", e),
+            Error::Serde(e) => write!(f, "Serde error: {}", e),
         }
     }
 }
@@ -36,5 +38,11 @@ impl From<std::env::VarError> for Error {
 impl From<gcp_auth::Error> for Error {
     fn from(e: gcp_auth::Error) -> Self {
         Error::Token(e)
+    }
+}
+
+impl From<serde_json::Error> for Error {
+    fn from(e: serde_json::Error) -> Self {
+        Error::Serde(e)
     }
 }
