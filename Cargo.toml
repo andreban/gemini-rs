@@ -1,0 +1,19 @@
+[package]
+name = "gemini-rs"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+gcp_auth = "0.10.0"
+reqwest = { version = "0.11.9", features = ["json", "gzip"] }
+serde = { version = "*", features = ["derive"] }
+serde_json = { version = "*"}
+tracing = "0.1.40"
+
+[dev-dependencies]
+console = "0.15.8"
+dialoguer = "0.11.0"
+indicatif = "0.17.7"
+tokio = { version = "1.35.1", features = ["full"] }
