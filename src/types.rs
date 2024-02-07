@@ -97,7 +97,7 @@ pub struct SafetyRating {
 pub struct Citation {
     pub start_index: i32,
     pub end_index: i32,
-    pub uri: String,
+    pub uri: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
