@@ -28,7 +28,7 @@ pub struct Tools {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Content {
     pub role: String,
-    pub parts: Vec<Part>,
+    pub parts: Option<Vec<Part>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, Default)]
@@ -60,8 +60,18 @@ pub enum Part {
     },
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct GenerateContentResponse(pub Vec<ResponseStreamChunk>);
+pub type GenerateContentResponse = Vec<ResponseStreamChunk>;
+
+// #[derive(Debug, Serialize, Deserialize)]
+// #[serde(rename_all = "camelCase")]
+// #[serde(untagged)]
+// pub enum ResponseStreamChunkType {
+//     Ok {
+//         candidates: Vec<Candidate>,
+//         usage_metadata: UsageMetadata,
+//     },
+//     Error,
+// }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -130,23 +140,32 @@ pub struct FunctionParametersProperty {
     pub description: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Error {
     pub code: i32,
     pub message: String,
     pub status: String,
-    pub details: Vec<ErrorDetail>,
+    pub details: Vec<ErrorType>,
 }
 
-// TODO: Make ErrorDetail an enum and map to the different types of errors.
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ErrorDetail {
-    #[serde(rename = "@type")]
-    pub r#type: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Link {
     pub description: String,
     pub url: String,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(tag = "@type")]
+pub enum ErrorType {
+    #[serde(rename = "type.googleapis.com/google.rpc.ErrorInfo")]
+    ErrorInfo { metadata: ErrorInfoMetadata },
+
+    #[serde(rename = "type.googleapis.com/google.rpc.Help")]
+    Help { links: Vec<Link> },
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ErrorInfoMetadata {
+    service: String,
+    consumer: String,
 }

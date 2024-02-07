@@ -1,5 +1,5 @@
 use crate::conversation::{Message, Role};
-use crate::error::Result;
+use crate::error::{Error, Result};
 use crate::prelude::{
     Content, Conversation, GenerateContentRequest, GenerateContentResponse, GenerationConfig,
 };
@@ -65,11 +65,10 @@ impl<T: TokenProvider + Clone> VertexClient<T> {
             .await?;
 
         let txt_json = resp.text().await?;
-        tracing::debug!("Vertex API Response: {}", txt_json);
         match serde_json::from_str(&txt_json) {
             Ok(response) => Ok(response),
             Err(e) => {
-                eprintln!("Failed to parse response: {} / {}", txt_json, e);
+                tracing::error!("Failed to parse response: {} with error {}", txt_json, e);
                 Err(e.into())
             }
         }
@@ -83,7 +82,7 @@ impl<T: TokenProvider + Clone> VertexClient<T> {
                 .iter()
                 .map(|m| Content {
                     role: m.role.to_string(),
-                    parts: vec![Part::Text(m.text.clone())],
+                    parts: Some(vec![Part::Text(m.text.clone())]),
                 })
                 .collect(),
             generation_config: None,
@@ -94,14 +93,23 @@ impl<T: TokenProvider + Clone> VertexClient<T> {
             .stream_generate_content(&request, Model::GeminiPro)
             .await?;
 
+        // Check for errors in the response.
+        for chunk in &response {
+            if let Some(error) = &chunk.error {
+                tracing::error!("Error in response: {:?}", error);
+                let cloned = error.clone();
+                return Err(Error::VertexError(cloned));
+            }
+        }
+
         let text = response
-            .0
             .into_iter()
             .flat_map(|chunk| {
                 chunk.candidates.unwrap().into_iter().flat_map(|candidate| {
                     candidate
                         .content
                         .parts
+                        .unwrap()
                         .into_iter()
                         .map(|part| match part {
                             Part::Text(text) => Some(text),
@@ -125,7 +133,7 @@ impl<T: TokenProvider + Clone> VertexClient<T> {
         let request = GenerateContentRequest {
             contents: vec![Content {
                 role: "user".to_string(),
-                parts: vec![Part::Text(prompt.to_string())],
+                parts: Some(vec![Part::Text(prompt.to_string())]),
             }],
             generation_config: generation_config.cloned(),
             tools: None,
@@ -135,14 +143,23 @@ impl<T: TokenProvider + Clone> VertexClient<T> {
             .stream_generate_content(&request, Model::GeminiPro)
             .await?;
 
+        // Check for errors in the response.
+        for chunk in &response {
+            if let Some(error) = &chunk.error {
+                tracing::error!("Error in response: {:?}", error);
+                let cloned = error.clone();
+                return Err(Error::VertexError(cloned));
+            }
+        }
+
         let text = response
-            .0
             .into_iter()
             .flat_map(|chunk| {
                 chunk.candidates.unwrap().into_iter().flat_map(|candidate| {
                     candidate
                         .content
                         .parts
+                        .unwrap()
                         .into_iter()
                         .map(|part| match part {
                             Part::Text(text) => Some(text),
