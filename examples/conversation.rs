@@ -16,7 +16,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     tracing_subscriber::fmt().init();
 
-    let vertex_client = VertexClient::new(
+    let gemini = GeminiClient::new(
         authentication_manager,
         api_endpoint,
         project_id,
@@ -25,7 +25,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     tracing::info!("Starting conversation...");
 
-    let mut conversation = Conversation::new();
+    let mut conversation = Dialogue::new();
     loop {
         let message: String = Input::with_theme(&ColorfulTheme::default())
             .with_prompt("user")
@@ -36,9 +36,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             break;
         }
 
-        // Push the user's message to the conversation.
-        conversation.push_message(Message::new(Role::User, &message));
-
         // Show a spinner while the model is thinking.
         let progress = ProgressBar::new_spinner();
         progress.enable_steady_tick(Duration::from_millis(120));
@@ -46,7 +43,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         progress.set_message("Thinking...");
 
         // Prompt the model with the conversation so far.
-        let response = vertex_client.prompt_conversation(&conversation).await?;
+        let response = conversation.do_turn(&gemini, &message).await?;
 
         // Stop the spinner and clear the terminal.
         progress.finish_and_clear();
@@ -58,7 +55,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             style("·").dim(),
             style(&response.text).cyan()
         );
-        conversation.push_message(response);
     }
 
     Ok(())

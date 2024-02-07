@@ -11,7 +11,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let project_id = std::env::var("PROJECT_ID")?;
     let location_id = std::env::var("LOCATION_ID")?;
 
-    let vertex_client = VertexClient::new(
+    let gemini = GeminiClient::new(
         authentication_manager,
         api_endpoint,
         project_id,
@@ -19,7 +19,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     let prompt = "What is the airspeed of an unladen swallow?";
-    let result = vertex_client.prompt_text(prompt, None).await?;
+    let result = gemini.prompt_text(prompt, None).await?;
     println!("Response: {}", result);
 
     Ok(())

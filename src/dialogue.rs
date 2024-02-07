@@ -2,6 +2,8 @@ use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 
+use crate::{client::GeminiClient, error::Result, prelude::TokenProvider};
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum Role {
     User,
@@ -20,7 +22,7 @@ impl ToString for Role {
 impl FromStr for Role {
     type Err = ();
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
         match s {
             "user" => Ok(Role::User),
             "model" => Ok(Role::Model),
@@ -44,17 +46,24 @@ impl Message {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Conversation {
-    pub messages: Vec<Message>,
+#[derive(Clone, Debug)]
+pub struct Dialogue {
+    messages: Vec<Message>,
 }
 
-impl Conversation {
+impl Dialogue {
     pub fn new() -> Self {
-        Conversation { messages: vec![] }
+        Dialogue { messages: vec![] }
     }
 
-    pub fn push_message(&mut self, message: Message) {
-        self.messages.push(message);
+    pub async fn do_turn<T: TokenProvider + Clone>(
+        &mut self,
+        gemini: &GeminiClient<T>,
+        message: &str,
+    ) -> Result<Message> {
+        self.messages.push(Message::new(Role::User, message));
+        let response = gemini.prompt_conversation(&self.messages).await?;
+        self.messages.push(response.clone());
+        Ok(response)
     }
 }

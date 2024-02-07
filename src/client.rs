@@ -1,8 +1,7 @@
-use crate::conversation::{Message, Role};
+use crate::dialogue::{Message, Role};
 use crate::error::{Error, Result};
 use crate::prelude::{
-    Content, Conversation, GenerateContentRequest, GenerateContentResponse, GenerationConfig,
-    ResponseStreamChunk,
+    Content, GenerateContentRequest, GenerateContentResponse, GenerationConfig, ResponseStreamChunk,
 };
 use crate::{prelude::Part, token_provider::TokenProvider};
 
@@ -20,8 +19,8 @@ impl ToString for Model {
     }
 }
 
-#[derive(Clone)]
-pub struct VertexClient<T: TokenProvider + Clone> {
+#[derive(Clone, Debug)]
+pub struct GeminiClient<T: TokenProvider + Clone> {
     token_provider: T,
     client: reqwest::Client,
     api_endpoint: String,
@@ -29,17 +28,17 @@ pub struct VertexClient<T: TokenProvider + Clone> {
     location_id: String,
 }
 
-unsafe impl<T: TokenProvider + Clone> Send for VertexClient<T> {}
-unsafe impl<T: TokenProvider + Clone> Sync for VertexClient<T> {}
+unsafe impl<T: TokenProvider + Clone> Send for GeminiClient<T> {}
+unsafe impl<T: TokenProvider + Clone> Sync for GeminiClient<T> {}
 
-impl<T: TokenProvider + Clone> VertexClient<T> {
+impl<T: TokenProvider + Clone> GeminiClient<T> {
     pub fn new(
         token_provider: T,
         api_endpoint: String,
         project_id: String,
         location_id: String,
     ) -> Self {
-        VertexClient {
+        GeminiClient {
             token_provider,
             client: reqwest::Client::new(),
             api_endpoint,
@@ -76,10 +75,9 @@ impl<T: TokenProvider + Clone> VertexClient<T> {
     }
 
     /// Prompts a conversation to the model.
-    pub async fn prompt_conversation(&self, conversation: &Conversation) -> Result<Message> {
+    pub async fn prompt_conversation(&self, messages: &[Message]) -> Result<Message> {
         let request = GenerateContentRequest {
-            contents: conversation
-                .messages
+            contents: messages
                 .iter()
                 .map(|m| Content {
                     role: m.role.to_string(),
@@ -95,7 +93,7 @@ impl<T: TokenProvider + Clone> VertexClient<T> {
             .await?;
 
         // Check for errors in the response.
-        let text = VertexClient::<T>::collect_text_from_response(response)?;
+        let text = GeminiClient::<T>::collect_text_from_response(response)?;
         Ok(Message::new(Role::Model, &text))
     }
 
@@ -119,7 +117,7 @@ impl<T: TokenProvider + Clone> VertexClient<T> {
             .stream_generate_content(&request, Model::GeminiPro)
             .await?;
 
-        VertexClient::<T>::collect_text_from_response(response)
+        GeminiClient::<T>::collect_text_from_response(response)
     }
 
     fn collect_text_from_response(response: GenerateContentResponse) -> Result<String> {
