@@ -74,7 +74,7 @@ pub enum ResponseStreamChunk {
 #[serde(rename_all = "camelCase")]
 pub struct OkResponse {
     pub candidates: Vec<Candidate>,
-    pub usage_metadata: UsageMetadata,
+    pub usage_metadata: Option<UsageMetadata>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
