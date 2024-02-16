@@ -6,11 +6,15 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+deadqueue = "0.2.4"
+futures-util = "0.3.30"
 gcp_auth = "0.10.0"
 reqwest = { version = "0.11.9", features = ["json", "gzip"] }
+reqwest-eventsource = "0.5.0"
 serde = { version = "*", features = ["derive"] }
 serde_json = { version = "*"}
 tracing = "0.1.40"
+tokio = { version = "1.36.0" }
 
 [dev-dependencies]
 console = "0.15.8"
