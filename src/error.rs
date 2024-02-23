@@ -11,6 +11,7 @@ pub enum Error {
     Token(gcp_auth::Error),
     Serde(serde_json::Error),
     VertexError(types::Error),
+    NoCandidatesError,
 }
 
 impl Display for Error {
@@ -22,6 +23,9 @@ impl Display for Error {
             Error::Serde(e) => write!(f, "Serde error: {}", e),
             Error::VertexError(e) => {
                 write!(f, "Vertex error: {}", serde_json::to_string(e).unwrap())
+            }
+            Error::NoCandidatesError => {
+                write!(f, "No candidates returned for the prompt")
             }
         }
     }

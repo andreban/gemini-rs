@@ -87,21 +87,17 @@ pub enum Part {
     },
 }
 
-pub type GenerateContentResponse = Vec<ResponseStreamChunk>;
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[serde(untagged)]
-pub enum ResponseStreamChunk {
-    Ok(OkResponse),
-    Error(Error),
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct OkResponse {
-    pub candidates: Vec<Candidate>,
-    pub usage_metadata: Option<UsageMetadata>,
+pub enum GenerateContentResponse {
+    Ok {
+        candidates: Vec<Candidate>,
+        usage_metadata: Option<UsageMetadata>,
+    },
+    Error {
+        error: Error,
+    },
 }
 
 #[derive(Debug, Serialize, Deserialize)]

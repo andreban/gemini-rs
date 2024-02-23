@@ -21,13 +21,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let prompt = "Tell me the story of the genesis of the universe as a bedtime story.";
     let request = GenerateContentRequest::from_prompt(prompt, None);
     let queue = gemini
-        .streaming_stream_generate_content(&request, Model::GeminiPro)
+        .stream_generate_content(&request, Model::GeminiPro)
         .await;
 
-    while let Some(chunk) = queue.pop().await {
-        if let ResponseStreamChunk::Ok(ok_response) = chunk {
-            let text = ok_response
-                .candidates
+    while let Some(response) = queue.pop().await {
+        if let GenerateContentResponse::Ok {
+            candidates,
+            usage_metadata: _,
+        } = response
+        {
+            let text = candidates
                 .iter()
                 .filter_map(|c| c.get_text())
                 .collect::<String>();

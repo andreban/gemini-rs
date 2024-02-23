@@ -7,7 +7,7 @@ use reqwest_eventsource::{Event, EventSource};
 use crate::dialogue::{Message, Role};
 use crate::error::{Error, Result};
 use crate::prelude::{
-    Content, GenerateContentRequest, GenerateContentResponse, GenerationConfig, ResponseStreamChunk,
+    Candidate, Content, GenerateContentRequest, GenerateContentResponse, GenerationConfig,
 };
 use crate::{prelude::Part, token_provider::TokenProvider};
 
@@ -53,12 +53,12 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
         }
     }
 
-    pub async fn streaming_stream_generate_content(
+    pub async fn stream_generate_content(
         &self,
         request: &GenerateContentRequest,
         model: Model,
-    ) -> Arc<Queue<Option<ResponseStreamChunk>>> {
-        let queue = Arc::new(Queue::<Option<ResponseStreamChunk>>::new());
+    ) -> Arc<Queue<Option<GenerateContentResponse>>> {
+        let queue = Arc::new(Queue::<Option<GenerateContentResponse>>::new());
 
         // Clone the queue and other necessary data to move into the async block.
         let cloned_queue = queue.clone();
@@ -78,7 +78,8 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
             let mut event_source = EventSource::new(req).unwrap();
             while let Some(Ok(event)) = event_source.next().await {
                 if let Event::Message(event) = event {
-                    let response: ResponseStreamChunk = serde_json::from_str(&event.data).unwrap();
+                    let response: GenerateContentResponse =
+                        serde_json::from_str(&event.data).unwrap();
                     cloned_queue.push(Some(response));
                 }
             }
@@ -89,14 +90,14 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
         queue
     }
 
-    pub async fn stream_generate_content(
+    pub async fn generate_content(
         &self,
         request: &GenerateContentRequest,
         model: Model,
     ) -> Result<GenerateContentResponse> {
         let access_token = self.token_provider.get_token(AUTH_SCOPE).await?;
         let endpoint_url: String = format!(
-            "https://{}/v1beta1/projects/{}/locations/{}/publishers/google/models/{}:streamGenerateContent", self.api_endpoint, self.project_id, self.location_id, model.to_string(),
+            "https://{}/v1beta1/projects/{}/locations/{}/publishers/google/models/{}:generateContent", self.api_endpoint, self.project_id, self.location_id, model.to_string(),
         );
         let resp = self
             .client
@@ -130,13 +131,15 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
             tools: None,
         };
 
-        let response = self
-            .stream_generate_content(&request, Model::GeminiPro)
-            .await?;
+        let response = self.generate_content(&request, Model::GeminiPro).await?;
 
         // Check for errors in the response.
-        let text = GeminiClient::<T>::collect_text_from_response(response)?;
-        Ok(Message::new(Role::Model, &text))
+        let mut candidates = GeminiClient::<T>::collect_text_from_response(&response)?;
+
+        match candidates.pop() {
+            Some(text) => Ok(Message::new(Role::Model, &text)),
+            None => Err(Error::NoCandidatesError),
+        }
     }
 
     /// Sends a text prompt to the Vertex API using the Gemini Pro model and extracts the text
@@ -155,40 +158,29 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
             tools: None,
         };
 
-        let response = self
-            .stream_generate_content(&request, Model::GeminiPro)
-            .await?;
+        let response = self.generate_content(&request, Model::GeminiPro).await?;
+        let mut candidates = GeminiClient::<T>::collect_text_from_response(&response)?;
 
-        GeminiClient::<T>::collect_text_from_response(response)
+        match candidates.pop() {
+            Some(candidate) => Ok(candidate),
+            None => Err(Error::NoCandidatesError),
+        }
     }
 
-    fn collect_text_from_response(response: GenerateContentResponse) -> Result<String> {
-        let mut text = String::new();
-        for chunk in response {
-            match chunk {
-                ResponseStreamChunk::Ok(ok_response) => {
-                    ok_response.candidates.iter().for_each(|c| {
-                        if let Some(t) = c.get_text() {
-                            text.push_str(&t);
-                        }
-                    });
-
-                    for candidate in ok_response.candidates {
-                        if let Some(parts) = &candidate.content.parts {
-                            for part in parts {
-                                if let Part::Text(t) = part {
-                                    text.push_str(t);
-                                }
-                            }
-                        }
-                    }
-                }
-                ResponseStreamChunk::Error(err) => {
-                    tracing::error!("Error in response: {:?}", err);
-                    return Err(Error::VertexError(err.clone()));
-                }
+    fn collect_text_from_response(response: &GenerateContentResponse) -> Result<Vec<String>> {
+        match response {
+            GenerateContentResponse::Ok {
+                candidates,
+                usage_metadata: _,
+            } => Ok(candidates
+                .iter()
+                .map(Candidate::get_text)
+                .flatten()
+                .collect::<Vec<String>>()),
+            GenerateContentResponse::Error { error } => {
+                tracing::error!("Error in response: {:?}", error);
+                return Err(Error::VertexError(error.clone()));
             }
         }
-        Ok(text)
     }
 }
