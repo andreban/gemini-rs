@@ -13,18 +13,6 @@ use crate::{prelude::Part, token_provider::TokenProvider};
 
 pub static AUTH_SCOPE: &[&str] = &["https://www.googleapis.com/auth/cloud-platform"];
 
-pub enum Model {
-    GeminiPro,
-}
-
-impl ToString for Model {
-    fn to_string(&self) -> String {
-        match self {
-            Model::GeminiPro => "gemini-pro".to_string(),
-        }
-    }
-}
-
 #[derive(Clone, Debug)]
 pub struct GeminiClient<T: TokenProvider + Clone> {
     token_provider: T,
@@ -56,7 +44,7 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
     pub async fn stream_generate_content(
         &self,
         request: &GenerateContentRequest,
-        model: Model,
+        model: &str,
     ) -> Arc<Queue<Option<GenerateContentResponse>>> {
         let queue = Arc::new(Queue::<Option<GenerateContentResponse>>::new());
 
@@ -93,7 +81,7 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
     pub async fn generate_content(
         &self,
         request: &GenerateContentRequest,
-        model: Model,
+        model: &str,
     ) -> Result<GenerateContentResponse> {
         let access_token = self.token_provider.get_token(AUTH_SCOPE).await?;
         let endpoint_url: String = format!(
@@ -131,7 +119,7 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
             tools: None,
         };
 
-        let response = self.generate_content(&request, Model::GeminiPro).await?;
+        let response = self.generate_content(&request, "gemini-pro").await?;
 
         // Check for errors in the response.
         let mut candidates = GeminiClient::<T>::collect_text_from_response(&response)?;
@@ -158,7 +146,7 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
             tools: None,
         };
 
-        let response = self.generate_content(&request, Model::GeminiPro).await?;
+        let response = self.generate_content(&request, "gemini-pro").await?;
         let mut candidates = GeminiClient::<T>::collect_text_from_response(&response)?;
 
         match candidates.pop() {

@@ -20,9 +20,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let prompt = "Tell me the story of the genesis of the universe as a bedtime story.";
     let request = GenerateContentRequest::from_prompt(prompt, None);
-    let queue = gemini
-        .stream_generate_content(&request, Model::GeminiPro)
-        .await;
+    let queue = gemini.stream_generate_content(&request, "gemini-pro").await;
 
     while let Some(response) = queue.pop().await {
         if let GenerateContentResponse::Ok {
