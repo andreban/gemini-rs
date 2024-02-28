@@ -32,12 +32,12 @@ pub struct TextEmbeddingPrediction {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TextEmbeddingResult {
-    statistics: TextEmbeddingStatistics,
-    values: Vec<f32>,
+    pub statistics: TextEmbeddingStatistics,
+    pub values: Vec<f32>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TextEmbeddingStatistics {
-    truncated: bool,
-    token_count: u32,
+    pub truncated: bool,
+    pub token_count: u32,
 }
