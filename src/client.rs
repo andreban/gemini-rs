@@ -8,6 +8,7 @@ use crate::dialogue::{Message, Role};
 use crate::error::{Error, Result};
 use crate::prelude::{
     Candidate, Content, GenerateContentRequest, GenerateContentResponse, GenerationConfig,
+    TextEmbeddingRequest, TextEmbeddingResponse,
 };
 use crate::{prelude::Part, token_provider::TokenProvider};
 
@@ -170,5 +171,27 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
                 return Err(Error::VertexError(error.clone()));
             }
         }
+    }
+
+    pub async fn text_embeddings(
+        &self,
+        request: &TextEmbeddingRequest,
+    ) -> Result<TextEmbeddingResponse> {
+        let model = "textembedding-gecko@003";
+        let endpoint_url = format!(
+            "https://{}/v1/projects/{}/locations/{}/publishers/google/models/{}:predict",
+            self.api_endpoint, self.project_id, self.location_id, model,
+        );
+        let access_token = self.token_provider.get_token(AUTH_SCOPE).await?;
+        let resp = self
+            .client
+            .post(&endpoint_url)
+            .bearer_auth(access_token)
+            .json(&request)
+            .send()
+            .await?;
+        let txt_json = resp.text().await?;
+        println!("{}", txt_json);
+        Ok(serde_json::from_str::<TextEmbeddingResponse>(&txt_json)?)
     }
 }
