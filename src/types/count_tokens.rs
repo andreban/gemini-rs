@@ -8,7 +8,14 @@ pub struct CountTokensRequest {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct CountTokensResponse {
-    pub total_tokens: i32,
+#[serde(untagged)]
+pub enum CountTokensResponse {
+    #[serde(rename_all = "camelCase")]
+    Ok {
+        total_tokens: i32,
+        total_billable_characters: u32,
+    },
+    Error {
+        error: super::Error,
+    },
 }
