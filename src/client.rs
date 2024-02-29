@@ -191,7 +191,6 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
             .send()
             .await?;
         let txt_json = resp.text().await?;
-        println!("{}", txt_json);
         Ok(serde_json::from_str::<TextEmbeddingResponse>(&txt_json)?)
     }
 }

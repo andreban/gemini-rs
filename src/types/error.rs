@@ -5,7 +5,7 @@ pub struct Error {
     pub code: i32,
     pub message: String,
     pub status: String,
-    pub details: Vec<ErrorType>,
+    pub details: Option<Vec<ErrorType>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
