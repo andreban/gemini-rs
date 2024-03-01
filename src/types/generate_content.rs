@@ -58,8 +58,8 @@ impl Candidate {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Citation {
-    pub start_index: i32,
-    pub end_index: i32,
+    pub start_index: Option<i32>,
+    pub end_index: Option<i32>,
     pub uri: Option<String>,
 }
 
@@ -69,17 +69,21 @@ pub struct CitationMetadata {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SafetyRating {
     pub category: String,
     pub probability: String,
+    pub probability_score: f32,
+    pub severity: String,
+    pub severity_score: f32,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UsageMetadata {
-    pub candidates_token_count: Option<i32>,
-    pub prompt_token_count: i32,
-    pub total_token_count: i32,
+    pub candidates_token_count: Option<u32>,
+    pub prompt_token_count: u32,
+    pub total_token_count: u32,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -116,4 +120,80 @@ pub enum GenerateContentResponse {
     Error {
         error: Error,
     },
+}
+
+#[cfg(test)]
+mod tests {
+    use super::GenerateContentResponse;
+
+    #[test]
+    pub fn parses_max_tokens_response() {
+        let input = r#"{
+            "candidates": [
+              {
+                "content": {
+                  "role": "model",
+                  "parts": [
+                    {
+                      "text": "Service workers are powerful and absolutely worth learning. They let you deliver an entirely new level of experience to your users. Your site can load instantly . It can work offline . It can be installed as a platform-specific app and feel every bit as polished—but with the reach and freedom of the web."
+                    }
+                  ]
+                },
+                "finishReason": "MAX_TOKENS",
+                "safetyRatings": [
+                  {
+                    "category": "HARM_CATEGORY_HATE_SPEECH",
+                    "probability": "NEGLIGIBLE",
+                    "probabilityScore": 0.03882902,
+                    "severity": "HARM_SEVERITY_NEGLIGIBLE",
+                    "severityScore": 0.05781161
+                  },
+                  {
+                    "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                    "probability": "NEGLIGIBLE",
+                    "probabilityScore": 0.07626997,
+                    "severity": "HARM_SEVERITY_NEGLIGIBLE",
+                    "severityScore": 0.06705628
+                  },
+                  {
+                    "category": "HARM_CATEGORY_HARASSMENT",
+                    "probability": "NEGLIGIBLE",
+                    "probabilityScore": 0.05749328,
+                    "severity": "HARM_SEVERITY_NEGLIGIBLE",
+                    "severityScore": 0.027532939
+                  },
+                  {
+                    "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                    "probability": "NEGLIGIBLE",
+                    "probabilityScore": 0.12929276,
+                    "severity": "HARM_SEVERITY_NEGLIGIBLE",
+                    "severityScore": 0.17838266
+                  }
+                ],
+                "citationMetadata": {
+                  "citations": [
+                    {
+                      "endIndex": 151,
+                      "uri": "https://web.dev/service-worker-mindset/"
+                    },
+                    {
+                      "startIndex": 93,
+                      "endIndex": 297,
+                      "uri": "https://web.dev/service-worker-mindset/"
+                    },
+                    {
+                      "endIndex": 297
+                    }
+                  ]
+                }
+              }
+            ],
+            "usageMetadata": {
+              "promptTokenCount": 12069,
+              "candidatesTokenCount": 61,
+              "totalTokenCount": 12130
+            }
+          }"#;
+        serde_json::from_str::<GenerateContentResponse>(input).unwrap();
+    }
 }
