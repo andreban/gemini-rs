@@ -185,8 +185,8 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
     pub async fn text_embeddings(
         &self,
         request: &TextEmbeddingRequest,
+        model: &str,
     ) -> Result<TextEmbeddingResponse> {
-        let model = "models/embedding-001";
         let endpoint_url = format!(
             "https://{}/v1/projects/{}/locations/{}/publishers/google/models/{}:predict",
             self.api_endpoint, self.project_id, self.location_id, model,
