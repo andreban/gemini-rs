@@ -65,11 +65,19 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
                 .bearer_auth(access_token)
                 .json(&request);
             let mut event_source = EventSource::new(req).unwrap();
-            while let Some(Ok(event)) = event_source.next().await {
-                if let Event::Message(event) = event {
-                    let response: GenerateContentResponse =
-                        serde_json::from_str(&event.data).unwrap();
-                    cloned_queue.push(Some(response));
+            while let Some(event) = event_source.next().await {
+                match event {
+                    Ok(event) => {
+                        if let Event::Message(event) = event {
+                            let response: GenerateContentResponse =
+                                serde_json::from_str(&event.data).unwrap();
+                            cloned_queue.push(Some(response));
+                        }
+                    }
+                    Err(e) => {
+                        tracing::error!("Error in event source: {:?}", e);
+                        break;
+                    }
                 }
             }
             cloned_queue.push(None);
@@ -97,6 +105,7 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
             .await?;
 
         let txt_json = resp.text().await?;
+        tracing::debug!("generate_content response: {:?}", txt_json);
         match serde_json::from_str(&txt_json) {
             Ok(response) => Ok(response),
             Err(e) => {
@@ -177,7 +186,7 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
         &self,
         request: &TextEmbeddingRequest,
     ) -> Result<TextEmbeddingResponse> {
-        let model = "textembedding-gecko@003";
+        let model = "models/embedding-001";
         let endpoint_url = format!(
             "https://{}/v1/projects/{}/locations/{}/publishers/google/models/{}:predict",
             self.api_endpoint, self.project_id, self.location_id, model,
