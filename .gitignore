@@ -5,3 +5,4 @@ Cargo.lock
 *.pdb
 /target
 .cargo/config.toml
+.DS_Store

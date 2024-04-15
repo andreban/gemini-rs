@@ -21,12 +21,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let embedding_request = TextEmbeddingRequest {
         instances: vec![
             TextEmbeddingRequestInstance {
-                title: String::from("Embed testing"),
+                title: Some(String::from("Embed testing")),
                 content: String::from("Embed testing"),
                 task_type: String::from("RETRIEVAL_DOCUMENT"),
             },
             TextEmbeddingRequestInstance {
-                title: String::from("Embed testing 2"),
+                title: Some(String::from("Embed testing 2")),
                 content: String::from("Embed testing 2"),
                 task_type: String::from("RETRIEVAL_DOCUMENT"),
             },

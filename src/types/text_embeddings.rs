@@ -11,7 +11,7 @@ pub struct TextEmbeddingRequest {
 pub struct TextEmbeddingRequestInstance {
     pub content: String,
     pub task_type: String,
-    pub title: String,
+    pub title: Option<String>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
