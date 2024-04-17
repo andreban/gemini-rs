@@ -44,7 +44,7 @@ pub struct GenerationConfig {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Candidate {
-    pub content: Content,
+    pub content: Option<Content>,
     pub citation_metadata: Option<CitationMetadata>,
     pub safety_ratings: Vec<SafetyRating>,
     pub finish_reason: Option<String>,
@@ -52,7 +52,10 @@ pub struct Candidate {
 
 impl Candidate {
     pub fn get_text(&self) -> Option<String> {
-        self.content.get_text()
+        match &self.content {
+            Some(content) => content.get_text(),
+            None => None,
+        }
     }
 }
 
@@ -195,6 +198,61 @@ mod tests {
               "totalTokenCount": 12130
             }
           }"#;
+        serde_json::from_str::<GenerateContentResponse>(input).unwrap();
+    }
+
+    #[test]
+    fn parses_candidates_without_content() {
+        let input = r#"{
+        "candidates": [
+          {
+            "finishReason": "RECITATION",
+            "safetyRatings": [
+              {
+                "category": "HARM_CATEGORY_HATE_SPEECH",
+                "probability": "NEGLIGIBLE",
+                "probabilityScore": 0.08021325,
+                "severity": "HARM_SEVERITY_NEGLIGIBLE",
+                "severityScore": 0.0721122
+              },
+              {
+                "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                "probability": "NEGLIGIBLE",
+                "probabilityScore": 0.19360436,
+                "severity": "HARM_SEVERITY_NEGLIGIBLE",
+                "severityScore": 0.1066906
+              },
+              {
+                "category": "HARM_CATEGORY_HARASSMENT",
+                "probability": "NEGLIGIBLE",
+                "probabilityScore": 0.07751766,
+                "severity": "HARM_SEVERITY_NEGLIGIBLE",
+                "severityScore": 0.040769264
+              },
+              {
+                "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                "probability": "NEGLIGIBLE",
+                "probabilityScore": 0.030792166,
+                "severity": "HARM_SEVERITY_NEGLIGIBLE",
+                "severityScore": 0.04138472
+              }
+            ],
+            "citationMetadata": {
+              "citations": [
+                {
+                  "startIndex": 1108,
+                  "endIndex": 1250,
+                  "uri": "https://chrome.google.com/webstore/detail/autocontrol-shortcut-mana/lkaihdpfpifdlgoapbfocpmekbokmcfd?hl=zh-TW"
+                }
+              ]
+            }
+          }
+        ],
+        "usageMetadata": {
+          "promptTokenCount": 577,
+          "totalTokenCount": 577
+        }
+      }"#;
         serde_json::from_str::<GenerateContentResponse>(input).unwrap();
     }
 }
