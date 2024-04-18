@@ -25,7 +25,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     tracing::info!("Starting conversation...");
 
-    let mut conversation = Dialogue::new();
+    let mut conversation = Dialogue::new("gemini-pro");
     loop {
         let message: String = Input::with_theme(&ColorfulTheme::default())
             .with_prompt("user")

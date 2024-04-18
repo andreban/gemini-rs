@@ -116,7 +116,7 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
     }
 
     /// Prompts a conversation to the model.
-    pub async fn prompt_conversation(&self, messages: &[Message]) -> Result<Message> {
+    pub async fn prompt_conversation(&self, messages: &[Message], model: &str) -> Result<Message> {
         let request = GenerateContentRequest {
             contents: messages
                 .iter()
@@ -129,7 +129,7 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
             tools: None,
         };
 
-        let response = self.generate_content(&request, "gemini-pro").await?;
+        let response = self.generate_content(&request, model).await?;
 
         // Check for errors in the response.
         let mut candidates = GeminiClient::<T>::collect_text_from_response(&response)?;

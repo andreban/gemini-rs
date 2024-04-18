@@ -48,12 +48,16 @@ impl Message {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Dialogue {
+    model: String,
     messages: Vec<Message>,
 }
 
 impl Dialogue {
-    pub fn new() -> Self {
-        Dialogue { messages: vec![] }
+    pub fn new(model: &str) -> Self {
+        Dialogue {
+            model: model.to_string(),
+            messages: vec![],
+        }
     }
 
     pub async fn do_turn<T: TokenProvider + Clone>(
@@ -62,7 +66,9 @@ impl Dialogue {
         message: &str,
     ) -> Result<Message> {
         self.messages.push(Message::new(Role::User, message));
-        let response = gemini.prompt_conversation(&self.messages).await?;
+        let response = gemini
+            .prompt_conversation(&self.messages, &self.model)
+            .await?;
         self.messages.push(response.clone());
         Ok(response)
     }
