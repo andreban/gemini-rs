@@ -22,10 +22,22 @@ pub enum ErrorType {
 
     #[serde(rename = "type.googleapis.com/google.rpc.Help")]
     Help { links: Vec<Link> },
+
+    #[serde(rename = "type.googleapis.com/google.rpc.BadRequest")]
+    BadRequest {
+        #[serde(rename = "fieldViolations")]
+        field_violations: Vec<FieldViolation>,
+    },
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ErrorInfoMetadata {
-    service: String,
-    consumer: String,
+    pub service: String,
+    pub consumer: String,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct FieldViolation {
+    pub field: String,
+    pub description: String,
 }

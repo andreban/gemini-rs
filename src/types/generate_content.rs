@@ -4,11 +4,12 @@ use serde::{Deserialize, Serialize};
 
 use super::{Content, Error, Part};
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Default, Serialize, Deserialize)]
 pub struct GenerateContentRequest {
     pub contents: Vec<Content>,
     pub generation_config: Option<GenerationConfig>,
     pub tools: Option<Vec<Tools>>,
+    pub system_instruction: Option<Content>,
 }
 
 impl GenerateContentRequest {
@@ -20,6 +21,7 @@ impl GenerateContentRequest {
             }],
             generation_config,
             tools: None,
+            system_instruction: None,
         }
     }
 }

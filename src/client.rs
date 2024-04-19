@@ -127,6 +127,7 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
                 .collect(),
             generation_config: None,
             tools: None,
+            system_instruction: None,
         };
 
         let response = self.generate_content(&request, model).await?;
@@ -154,6 +155,7 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
             }],
             generation_config: generation_config.cloned(),
             tools: None,
+            system_instruction: None,
         };
 
         let response = self.generate_content(&request, "gemini-pro").await?;
