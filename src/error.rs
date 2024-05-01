@@ -1,5 +1,7 @@
 use std::fmt::Display;
 
+use reqwest_eventsource::CannotCloneRequestError;
+
 use crate::types;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -10,8 +12,9 @@ pub enum Error {
     HttpClient(reqwest::Error),
     Token(gcp_auth::Error),
     Serde(serde_json::Error),
-    VertexError(types::Error),
+    VertexError(types::VertexApiError),
     NoCandidatesError,
+    EventSourceError(CannotCloneRequestError),
 }
 
 impl Display for Error {
@@ -22,10 +25,13 @@ impl Display for Error {
             Error::Token(e) => write!(f, "Token error: {}", e),
             Error::Serde(e) => write!(f, "Serde error: {}", e),
             Error::VertexError(e) => {
-                write!(f, "Vertex error: {}", serde_json::to_string(e).unwrap())
+                write!(f, "Vertex error: {}", e.to_string())
             }
             Error::NoCandidatesError => {
                 write!(f, "No candidates returned for the prompt")
+            }
+            Error::EventSourceError(e) => {
+                write!(f, "EventSourrce Error: {}", e)
             }
         }
     }
@@ -57,8 +63,14 @@ impl From<serde_json::Error> for Error {
     }
 }
 
-impl From<types::Error> for Error {
-    fn from(e: types::Error) -> Self {
+impl From<types::VertexApiError> for Error {
+    fn from(e: types::VertexApiError) -> Self {
         Error::VertexError(e)
+    }
+}
+
+impl From<CannotCloneRequestError> for Error {
+    fn from(e: CannotCloneRequestError) -> Self {
+        Error::EventSourceError(e)
     }
 }

@@ -23,16 +23,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let queue = gemini.stream_generate_content(&request, "gemini-pro").await;
 
     while let Some(response) = queue.pop().await {
-        if let GenerateContentResponse::Ok {
-            candidates,
-            usage_metadata: _,
-        } = response
-        {
-            let text = candidates
-                .iter()
-                .filter_map(|c| c.get_text())
-                .collect::<String>();
-            print!("{}", text);
+        match response {
+            Ok(result) => {
+                let text = result
+                    .candidates
+                    .iter()
+                    .filter_map(|c| c.get_text())
+                    .collect::<String>();
+                print!("{}", text);
+            }
+            Err(error) => {
+                println!("{error}");
+            }
         }
     }
 

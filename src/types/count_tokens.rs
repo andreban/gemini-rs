@@ -16,6 +16,6 @@ pub enum CountTokensResponse {
         total_billable_characters: u32,
     },
     Error {
-        error: super::Error,
+        error: super::VertexApiError,
     },
 }

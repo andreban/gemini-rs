@@ -38,13 +38,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .generate_content(&request, "gemini-1.0-pro-002")
         .await?;
 
-    if let GenerateContentResponse::Ok {
-        candidates,
-        usage_metadata: _,
-    } = result
-    {
-        println!("Response: {:?}", candidates[0].get_text().unwrap());
-    }
+    println!("Response: {:?}", result.candidates[0].get_text().unwrap());
 
     Ok(())
 }

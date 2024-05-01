@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::Error;
+use super::VertexApiError;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TextEmbeddingRequest {
@@ -21,7 +21,7 @@ pub enum TextEmbeddingResponse {
         predictions: Vec<TextEmbeddingPrediction>,
     },
     Error {
-        error: Error,
+        error: VertexApiError,
     },
 }
 

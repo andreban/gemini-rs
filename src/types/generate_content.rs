@@ -2,7 +2,8 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use super::{Content, Error, Part};
+use super::{Content, Part, VertexApiError};
+use crate::error::Result;
 
 #[derive(Clone, Default, Serialize, Deserialize)]
 pub struct GenerateContentRequest {
@@ -116,16 +117,40 @@ pub struct FunctionParametersProperty {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 #[serde(untagged)]
 pub enum GenerateContentResponse {
-    Ok {
-        candidates: Vec<Candidate>,
-        usage_metadata: Option<UsageMetadata>,
-    },
-    Error {
-        error: Error,
-    },
+    Ok(GenerateContentResponseResult),
+    Error(GenerateContentResponseError),
+}
+
+impl Into<Result<GenerateContentResponseResult>> for GenerateContentResponse {
+    fn into(self) -> Result<GenerateContentResponseResult> {
+        match self {
+            GenerateContentResponse::Ok(result) => Ok(result),
+            GenerateContentResponse::Error(error) => Err(error.error.into()),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GenerateContentResponseResult {
+    pub candidates: Vec<Candidate>,
+    pub usage_metadata: Option<UsageMetadata>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GenerateContentResponseError {
+    pub error: VertexApiError,
+}
+
+impl GenerateContentResponse {
+    pub fn into_result(self) -> Result<GenerateContentResponseResult> {
+        match self {
+            GenerateContentResponse::Ok(result) => Ok(result),
+            GenerateContentResponse::Error(error) => Err(error.error.into()),
+        }
+    }
 }
 
 #[cfg(test)]
