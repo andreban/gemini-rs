@@ -52,7 +52,7 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
         let access_token = match self.token_provider.get_token(AUTH_SCOPE).await {
             Ok(access_token) => access_token,
             Err(e) => {
-                queue.push(Some(Err(e.into())));
+                queue.push(Some(Err(e)));
                 return queue;
             }
         };
@@ -60,7 +60,7 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
         // Clone the queue and other necessary data to move into the async block.
         let cloned_queue = queue.clone();
         let endpoint_url: String = format!(
-            "https://{}/v1beta1/projects/{}/locations/{}/publishers/google/models/{}:streamGenerateContent?alt=sse", self.api_endpoint, self.project_id, self.location_id, model.to_string(),
+            "https://{}/v1beta1/projects/{}/locations/{}/publishers/google/models/{}:streamGenerateContent?alt=sse", self.api_endpoint, self.project_id, self.location_id, model,
         );
         let client = self.client.clone();
         let request = request.clone();
@@ -112,7 +112,7 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
     ) -> Result<GenerateContentResponseResult> {
         let access_token = self.token_provider.get_token(AUTH_SCOPE).await?;
         let endpoint_url: String = format!(
-            "https://{}/v1beta1/projects/{}/locations/{}/publishers/google/models/{}:generateContent", self.api_endpoint, self.project_id, self.location_id, model.to_string(),
+            "https://{}/v1beta1/projects/{}/locations/{}/publishers/google/models/{}:generateContent", self.api_endpoint, self.project_id, self.location_id, model,
         );
         let resp = self
             .client
@@ -189,8 +189,7 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
         response
             .candidates
             .iter()
-            .map(Candidate::get_text)
-            .flatten()
+            .filter_map(Candidate::get_text)
             .collect::<Vec<String>>()
     }
 

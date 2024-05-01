@@ -123,9 +123,9 @@ pub enum GenerateContentResponse {
     Error(GenerateContentResponseError),
 }
 
-impl Into<Result<GenerateContentResponseResult>> for GenerateContentResponse {
-    fn into(self) -> Result<GenerateContentResponseResult> {
-        match self {
+impl From<GenerateContentResponse> for Result<GenerateContentResponseResult> {
+    fn from(val: GenerateContentResponse) -> Self {
+        match val {
             GenerateContentResponse::Ok(result) => Ok(result),
             GenerateContentResponse::Error(error) => Err(error.error.into()),
         }

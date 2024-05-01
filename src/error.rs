@@ -25,7 +25,7 @@ impl Display for Error {
             Error::Token(e) => write!(f, "Token error: {}", e),
             Error::Serde(e) => write!(f, "Serde error: {}", e),
             Error::VertexError(e) => {
-                write!(f, "Vertex error: {}", e.to_string())
+                write!(f, "Vertex error: {}", e)
             }
             Error::NoCandidatesError => {
                 write!(f, "No candidates returned for the prompt")
