@@ -85,11 +85,24 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
                         if let Event::Message(event) = event {
                             let response: serde_json::error::Result<GenerateContentResponse> =
                                 serde_json::from_str(&event.data);
-                            if let Ok(response) = response {
-                                cloned_queue.push(Some(response.into_result()));
-                            } else {
-                                tracing::error!("Error parsing message: {}", event.data);
-                            };
+
+                            match response {
+                                Ok(response) => {
+                                    let result = response.into_result();
+                                    let finished = match &result {
+                                        Ok(result) => result.candidates[0].finish_reason.is_some(),
+                                        Err(_) => true,
+                                    };
+                                    cloned_queue.push(Some(result));
+                                    if finished {
+                                        break;
+                                    }
+                                }
+                                Err(_) => {
+                                    tracing::error!("Error parsing message: {}", event.data);
+                                    break;
+                                }
+                            }
                         }
                     }
                     Err(e) => {
