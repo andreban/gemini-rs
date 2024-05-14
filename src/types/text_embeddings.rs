@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::error::{Error, Result};
+
 use super::VertexApiError;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -17,12 +19,28 @@ pub struct TextEmbeddingRequestInstance {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum TextEmbeddingResponse {
-    Ok {
-        predictions: Vec<TextEmbeddingPrediction>,
-    },
-    Error {
-        error: VertexApiError,
-    },
+    Ok(TextEmbeddingResponseOk),
+    Error { error: VertexApiError },
+}
+
+impl TextEmbeddingResponse {
+    pub fn into_result(self) -> Result<TextEmbeddingResponseOk> {
+        self.into()
+    }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct TextEmbeddingResponseOk {
+    pub predictions: Vec<TextEmbeddingPrediction>,
+}
+
+impl From<TextEmbeddingResponse> for Result<TextEmbeddingResponseOk> {
+    fn from(value: TextEmbeddingResponse) -> Self {
+        match value {
+            TextEmbeddingResponse::Ok(ok) => Ok(ok),
+            TextEmbeddingResponse::Error { error } => Err(Error::VertexError(error)),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

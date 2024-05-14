@@ -35,7 +35,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let result = gemini
         .text_embeddings(&embedding_request, "textembedding-gecko@003")
-        .await?;
+        .await?
+        .into_result()?;
     println!("Response: {:?}", result);
 
     Ok(())
