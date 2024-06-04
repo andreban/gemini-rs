@@ -1,12 +1,8 @@
-use std::sync::Arc;
-
 use gemini_rs::prelude::*;
-
-use gcp_auth::AuthenticationManager;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let authentication_manager = Arc::new(AuthenticationManager::new().await?);
+    let authentication_manager = gcp_auth::provider().await?;
     let api_endpoint = std::env::var("API_ENDPOINT")?;
     let project_id = std::env::var("PROJECT_ID")?;
     let location_id = std::env::var("LOCATION_ID")?;

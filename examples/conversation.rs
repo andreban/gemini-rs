@@ -1,15 +1,13 @@
-use std::{sync::Arc, time::Duration};
-
 use console::style;
 use dialoguer::{theme::ColorfulTheme, Input};
 use gemini_rs::prelude::*;
+use std::time::Duration;
 
-use gcp_auth::AuthenticationManager;
 use indicatif::{ProgressBar, ProgressStyle};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let authentication_manager = Arc::new(AuthenticationManager::new().await?);
+    let authentication_manager = gcp_auth::provider().await?;
     let api_endpoint = std::env::var("API_ENDPOINT")?;
     let project_id = std::env::var("PROJECT_ID")?;
     let location_id = std::env::var("LOCATION_ID")?;
