@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Content {
-    pub role: String,
+    pub role: Option<String>,
     pub parts: Option<Vec<Part>>,
 }
 

@@ -17,7 +17,7 @@ impl GenerateContentRequest {
     pub fn from_prompt(prompt: &str, generation_config: Option<GenerationConfig>) -> Self {
         GenerateContentRequest {
             contents: vec![Content {
-                role: "user".to_string(),
+                role: Some("user".to_string()),
                 parts: Some(vec![Part::Text(prompt.to_string())]),
             }],
             generation_config,

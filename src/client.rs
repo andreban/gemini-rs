@@ -152,7 +152,7 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
             contents: messages
                 .iter()
                 .map(|m| Content {
-                    role: m.role.to_string(),
+                    role: Some(m.role.to_string()),
                     parts: Some(vec![Part::Text(m.text.clone())]),
                 })
                 .collect(),
@@ -181,7 +181,7 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
     ) -> Result<String> {
         let request = GenerateContentRequest {
             contents: vec![Content {
-                role: "user".to_string(),
+                role: Some("user".to_string()),
                 parts: Some(vec![Part::Text(prompt.to_string())]),
             }],
             generation_config: generation_config.cloned(),

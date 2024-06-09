@@ -17,7 +17,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let prompt = "What is the airspeed of an unladen swallow?";
     let request = CountTokensRequest {
         contents: Content {
-            role: "user".to_string(),
+            role: Some("user".to_string()),
             parts: Some(vec![Part::Text(prompt.to_string())]),
         },
     };
