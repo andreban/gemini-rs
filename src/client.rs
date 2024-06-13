@@ -137,8 +137,8 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
 
         let txt_json = resp.text().await?;
         tracing::debug!("generate_content response: {:?}", txt_json);
-        match serde_json::from_str(&txt_json) {
-            Ok(response) => Ok(response),
+        match serde_json::from_str::<GenerateContentResponse>(&txt_json) {
+            Ok(response) => Ok(response.into_result()?),
             Err(e) => {
                 tracing::error!("Failed to parse response: {} with error {}", txt_json, e);
                 Err(e.into())
