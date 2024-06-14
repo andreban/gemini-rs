@@ -27,9 +27,17 @@ impl GenerateContentRequest {
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Default, Serialize, Deserialize)]
 pub struct Tools {
     pub function_declarations: Option<Vec<FunctionDeclaration>>,
+    #[serde(rename = "googleSearchRetrieval")]
+    pub google_search_retrieval: Option<GoogleSearchRetrieval>,
+}
+
+#[derive(Clone, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GoogleSearchRetrieval {
+    pub disable_attribution: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, Default)]
