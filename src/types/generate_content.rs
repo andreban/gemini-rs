@@ -97,8 +97,8 @@ pub struct SafetyRating {
 #[serde(rename_all = "camelCase")]
 pub struct UsageMetadata {
     pub candidates_token_count: Option<u32>,
-    pub prompt_token_count: u32,
-    pub total_token_count: u32,
+    pub prompt_token_count: Option<u32>,
+    pub total_token_count: Option<u32>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -163,7 +163,13 @@ impl GenerateContentResponse {
 
 #[cfg(test)]
 mod tests {
-    use super::GenerateContentResponse;
+    use super::{GenerateContentResponse, GenerateContentResponseResult};
+
+    #[test]
+    pub fn parses_empty_metadata_response() {
+        let input = r#"{"candidates": [{"content": {"role": "model","parts": [{"text": "-"}]}}],"usageMetadata": {}}"#;
+        serde_json::from_str::<GenerateContentResponseResult>(input).unwrap();
+    }
 
     #[test]
     pub fn parses_max_tokens_response() {
