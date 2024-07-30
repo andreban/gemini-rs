@@ -88,9 +88,9 @@ pub struct CitationMetadata {
 pub struct SafetyRating {
     pub category: String,
     pub probability: String,
-    pub probability_score: f32,
+    pub probability_score: Option<f32>,
     pub severity: String,
-    pub severity_score: f32,
+    pub severity_score: Option<f32>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -294,6 +294,53 @@ mod tests {
           "totalTokenCount": 577
         }
       }"#;
+        serde_json::from_str::<GenerateContentResponse>(input).unwrap();
+    }
+
+    #[test]
+    fn parses_safety_rating_without_scores() {
+        let input = r#"{
+          "candidates": [
+            {
+              "content": {
+                "role": "model",
+                "parts": [
+                  {
+                    "text": "Return text"
+                  }
+                ]
+              },
+              "finishReason": "STOP",
+              "safetyRatings": [
+                {
+                  "category": "HARM_CATEGORY_HATE_SPEECH",
+                  "probability": "NEGLIGIBLE",
+                  "severity": "HARM_SEVERITY_NEGLIGIBLE"
+                },
+                {
+                  "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                  "probability": "NEGLIGIBLE",
+                  "severity": "HARM_SEVERITY_NEGLIGIBLE"
+                },
+                {
+                  "category": "HARM_CATEGORY_HARASSMENT",
+                  "probability": "NEGLIGIBLE",
+                  "severity": "HARM_SEVERITY_NEGLIGIBLE"
+                },
+                {
+                  "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                  "probability": "NEGLIGIBLE",
+                  "severity": "HARM_SEVERITY_NEGLIGIBLE"
+                }
+              ]
+            }
+          ],
+          "usageMetadata": {
+            "promptTokenCount": 5492,
+            "candidatesTokenCount": 1256,
+            "totalTokenCount": 6748
+          }
+        }"#;
         serde_json::from_str::<GenerateContentResponse>(input).unwrap();
     }
 }
