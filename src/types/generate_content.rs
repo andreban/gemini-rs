@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 use super::{Content, Part, VertexApiError};
 use crate::error::Result;
@@ -66,6 +67,8 @@ pub struct GenerationConfig {
     pub candidate_count: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub response_mime_type: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub response_schema: Option<Value>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
