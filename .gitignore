@@ -7,3 +7,4 @@ Cargo.lock
 .cargo/config.toml
 .DS_Store
 /.idea
+output.jpg

@@ -11,6 +11,7 @@ use crate::prelude::{
     GenerateContentResponse, GenerateContentResponseResult, GenerationConfig, TextEmbeddingRequest,
     TextEmbeddingResponse,
 };
+use crate::types::{PredictImageRequest, PredictImageResponse};
 use crate::{prelude::Part, token_provider::TokenProvider};
 
 pub static AUTH_SCOPE: &[&str] = &["https://www.googleapis.com/auth/cloud-platform"];
@@ -250,6 +251,29 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
 
         let txt_json = resp.text().await?;
         tracing::debug!("count_tokens response: {:?}", txt_json);
+        Ok(serde_json::from_str(&txt_json)?)
+    }
+
+    pub async fn predict_image(
+        &self,
+        request: &PredictImageRequest,
+        model: &str,
+    ) -> Result<PredictImageResponse> {
+        let endpoint_url = format!(
+            "https://{}/v1/projects/{}/locations/{}/publishers/google/models/{}:predict",
+            self.api_endpoint, self.project_id, self.location_id, model,
+        );
+
+        let access_token = self.token_provider.get_token(AUTH_SCOPE).await?;
+        let resp = self
+            .client
+            .post(&endpoint_url)
+            .bearer_auth(access_token)
+            .json(&request)
+            .send()
+            .await?;
+
+        let txt_json = resp.text().await?;
         Ok(serde_json::from_str(&txt_json)?)
     }
 }
