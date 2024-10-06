@@ -3,6 +3,7 @@ use std::sync::Arc;
 use deadqueue::unlimited::Queue;
 use futures_util::stream::StreamExt;
 use reqwest_eventsource::{Event, EventSource};
+use tracing::error;
 
 use crate::dialogue::{Message, Role};
 use crate::error::{Error, Result};
@@ -274,6 +275,13 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
             .await?;
 
         let txt_json = resp.text().await?;
-        Ok(serde_json::from_str(&txt_json)?)
+
+        match serde_json::from_str::<PredictImageResponse>(&txt_json) {
+            Ok(response) => return Ok(response),
+            Err(e) => {
+                error!(response = txt_json, error = ?e, "Failed to parse response");
+                return Err(e.into());
+            }
+        }
     }
 }

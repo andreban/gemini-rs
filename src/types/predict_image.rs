@@ -70,6 +70,7 @@ pub struct PredictImageRequestParameters {
     ///  - "watercolor"
     ///  - "cyberpunk"
     ///  - "pop_art"
+    /// Pre-defined styles is only supported for model imagegeneration@002
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sample_image_style: Option<String>,
 

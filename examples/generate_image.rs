@@ -1,7 +1,8 @@
 use std::{error::Error, io::Cursor};
 
 use gemini_rs::prelude::{
-    GeminiClient, PredictImageRequest, PredictImageRequestParameters, PredictImageRequestPrompt,
+    GeminiClient, PredictImageRequest, PredictImageRequestParameters,
+    PredictImageRequestParametersOutputOptions, PredictImageRequestPrompt,
 };
 use image::{ImageFormat, ImageReader};
 
@@ -28,6 +29,11 @@ pub async fn main() -> Result<(), Box<dyn Error>> {
         }],
         parameters: PredictImageRequestParameters {
             sample_count: 1,
+            aspect_ratio: Some("1:1".to_string()),
+            output_options: Some(PredictImageRequestParametersOutputOptions {
+                mime_type: Some("image/jpeg".to_string()),
+                compression_quality: Some(75),
+            }),
             ..Default::default()
         },
     };
