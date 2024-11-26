@@ -7,6 +7,39 @@ pub struct CountTokensRequest {
     pub contents: Content,
 }
 
+impl CountTokensRequest {
+    pub fn builder() -> CountTokensRequestBuilder {
+        CountTokensRequestBuilder::new()
+    }
+}
+
+pub struct CountTokensRequestBuilder {
+    contents: Content,
+}
+
+impl CountTokensRequestBuilder {
+    pub fn new() -> Self {
+        CountTokensRequestBuilder {
+            contents: Content::default(),
+        }
+    }
+
+    pub fn from_prompt(prompt: &str) -> Self {
+        CountTokensRequestBuilder {
+            contents: Content {
+                parts: Some(vec![super::Part::Text(prompt.to_string())]),
+                ..Default::default()
+            },
+        }
+    }
+
+    pub fn build(self) -> CountTokensRequest {
+        CountTokensRequest {
+            contents: self.contents,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CountTokensResponse {

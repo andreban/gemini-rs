@@ -18,7 +18,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let prompt = "Generate 10 ideas of blog posts with a title and decription for each idea.";
     let request = GenerateContentRequest {
         contents: vec![Content {
-            role: Some("user".to_string()),
+            role: Some(Role::User),
             parts: Some(vec![Part::Text(prompt.to_string())]),
         }],
         generation_config: Some(GenerationConfig {

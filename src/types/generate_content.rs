@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use super::{Content, Part, VertexApiError};
+use super::{Content, Part, Role, VertexApiError};
 use crate::error::Result;
 
 #[derive(Clone, Default, Serialize, Deserialize)]
@@ -24,7 +24,7 @@ impl GenerateContentRequest {
     pub fn from_prompt(prompt: &str, generation_config: Option<GenerationConfig>) -> Self {
         GenerateContentRequest {
             contents: vec![Content {
-                role: Some("user".to_string()),
+                role: Some(Role::User),
                 parts: Some(vec![Part::Text(prompt.to_string())]),
             }],
             generation_config,
@@ -32,6 +32,54 @@ impl GenerateContentRequest {
             system_instruction: None,
             safety_settings: None,
         }
+    }
+
+    pub fn builder() -> GenerateContentRequestBuilder {
+        GenerateContentRequestBuilder::new()
+    }
+}
+
+pub struct GenerateContentRequestBuilder {
+    request: GenerateContentRequest,
+}
+
+impl GenerateContentRequestBuilder {
+    fn new() -> Self {
+        GenerateContentRequestBuilder {
+            request: GenerateContentRequest::default(),
+        }
+    }
+
+    pub fn with_prompt(mut self, prompt: &str) -> Self {
+        self.request.contents = vec![Content {
+            role: Some(Role::User),
+            parts: Some(vec![Part::Text(prompt.to_string())]),
+        }];
+        self
+    }
+
+    pub fn with_generation_config(mut self, generation_config: GenerationConfig) -> Self {
+        self.request.generation_config = Some(generation_config);
+        self
+    }
+
+    pub fn with_tools(mut self, tools: Vec<Tools>) -> Self {
+        self.request.tools = Some(tools);
+        self
+    }
+
+    pub fn with_safety_settings(mut self, safety_settings: Vec<SafetySetting>) -> Self {
+        self.request.safety_settings = Some(safety_settings);
+        self
+    }
+
+    pub fn with_system_instruction(mut self, system_instruction: Content) -> Self {
+        self.request.system_instruction = Some(system_instruction);
+        self
+    }
+
+    pub fn build(self) -> GenerateContentRequest {
+        self.request
     }
 }
 

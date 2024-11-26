@@ -1,10 +1,10 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Default, Debug, Serialize, Deserialize)]
 pub struct Content {
-    pub role: Option<String>,
+    pub role: Option<Role>,
     pub parts: Option<Vec<Part>>,
 }
 
@@ -19,6 +19,34 @@ impl Content {
                 })
                 .collect::<String>()
         })
+    }
+}
+
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Role {
+    User,
+    Model,
+}
+
+impl ToString for Role {
+    fn to_string(&self) -> String {
+        match self {
+            Role::User => "user".to_string(),
+            Role::Model => "model".to_string(),
+        }
+    }
+}
+
+impl FromStr for Role {
+    type Err = ();
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        match s {
+            "user" => Ok(Role::User),
+            "model" => Ok(Role::Model),
+            _ => Err(()),
+        }
     }
 }
 

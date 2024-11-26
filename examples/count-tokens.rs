@@ -15,12 +15,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     let prompt = "What is the airspeed of an unladen swallow?";
-    let request = CountTokensRequest {
-        contents: Content {
-            role: Some("user".to_string()),
-            parts: Some(vec![Part::Text(prompt.to_string())]),
-        },
-    };
+    let request = CountTokensRequestBuilder::from_prompt(prompt).build();
     let result = gemini.count_tokens(&request, "gemini-pro").await?;
     println!("Response: {:?}", result);
 

@@ -5,14 +5,14 @@ use futures_util::stream::StreamExt;
 use reqwest_eventsource::{Event, EventSource};
 use tracing::error;
 
-use crate::dialogue::{Message, Role};
+use crate::dialogue::Message;
 use crate::error::{Error, Result};
 use crate::prelude::{
     Candidate, Content, CountTokensRequest, CountTokensResponse, GenerateContentRequest,
     GenerateContentResponse, GenerateContentResponseResult, GenerationConfig, TextEmbeddingRequest,
     TextEmbeddingResponse,
 };
-use crate::types::{PredictImageRequest, PredictImageResponse};
+use crate::types::{PredictImageRequest, PredictImageResponse, Role};
 use crate::{prelude::Part, token_provider::TokenProvider};
 
 pub static AUTH_SCOPE: &[&str] = &["https://www.googleapis.com/auth/cloud-platform"];
@@ -154,7 +154,7 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
             contents: messages
                 .iter()
                 .map(|m| Content {
-                    role: Some(m.role.to_string()),
+                    role: Some(m.role),
                     parts: Some(vec![Part::Text(m.text.clone())]),
                 })
                 .collect(),
@@ -177,6 +177,7 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
 
     /// Sends a text prompt to the Vertex API using the Gemini Pro model and extracts the text
     /// from the response.
+    #[deprecated(note = "Use `generate_content` instead")]
     pub async fn prompt_text(
         &self,
         prompt: &str,
@@ -184,7 +185,7 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
     ) -> Result<String> {
         let request = GenerateContentRequest {
             contents: vec![Content {
-                role: Some("user".to_string()),
+                role: Some(Role::User),
                 parts: Some(vec![Part::Text(prompt.to_string())]),
             }],
             generation_config: generation_config.cloned(),

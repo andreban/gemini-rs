@@ -20,7 +20,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let request = GenerateContentRequest {
         contents: vec![Content {
-            role: Some("user".to_string()),
+            role: Some(Role::User),
             parts: Some(vec![Part::Text(prompt.to_string())]),
         }],
         system_instruction: Some(Content {

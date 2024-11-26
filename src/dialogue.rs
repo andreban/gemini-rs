@@ -1,35 +1,6 @@
-use std::str::FromStr;
-
 use serde::{Deserialize, Serialize};
 
-use crate::{client::GeminiClient, error::Result, prelude::TokenProvider};
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum Role {
-    User,
-    Model,
-}
-
-impl ToString for Role {
-    fn to_string(&self) -> String {
-        match self {
-            Role::User => "user".to_string(),
-            Role::Model => "model".to_string(),
-        }
-    }
-}
-
-impl FromStr for Role {
-    type Err = ();
-
-    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        match s {
-            "user" => Ok(Role::User),
-            "model" => Ok(Role::Model),
-            _ => Err(()),
-        }
-    }
-}
+use crate::{client::GeminiClient, error::Result, prelude::TokenProvider, types::Role};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Message {
