@@ -15,7 +15,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     let prompt = "What is the airspeed of an unladen swallow?";
-    let request = GenerateContentRequest::builder().with_prompt(prompt).build();
+    let request = GenerateContentRequest::builder()
+        .add_content(
+            Content::builder()
+                .role(Role::User)
+                .add_part(Part::Text(prompt.to_string()))
+                .build(),
+        )
+        .build();
     let response = gemini.generate_content(&request, "gemini-pro").await?;
     println!("Response: {:?}", response.candidates[0].get_text().unwrap());
 

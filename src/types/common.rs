@@ -1,4 +1,4 @@
-use std::{collections::HashMap, str::FromStr};
+use std::{collections::HashMap, str::FromStr, vec};
 
 use serde::{Deserialize, Serialize};
 
@@ -19,6 +19,39 @@ impl Content {
                 })
                 .collect::<String>()
         })
+    }
+
+    pub fn builder() -> ContentBuilder {
+        ContentBuilder::new()
+    }
+}
+
+pub struct ContentBuilder {
+    content: Content,
+}
+
+impl ContentBuilder {
+    pub fn new() -> Self {
+        Self {
+            content: Default::default(),
+        }
+    }
+
+    pub fn add_part(mut self, part: Part) -> Self {
+        match &mut self.content.parts {
+            Some(parts) => parts.push(part),
+            None => self.content.parts = Some(vec![part]),
+        }
+        self
+    }
+
+    pub fn role(mut self, role: Role) -> Self {
+        self.content.role = Some(role);
+        self
+    }
+
+    pub fn build(self) -> Content {
+        self.content
     }
 }
 
