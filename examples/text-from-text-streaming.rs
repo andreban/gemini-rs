@@ -16,12 +16,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let prompt = "Tell me the story of the genesis of the universe as a bedtime story.";
     let request = GenerateContentRequest::builder()
-        .add_content(
-            Content::builder()
-                .role(Role::User)
-                .add_part(Part::Text(prompt.to_string()))
-                .build(),
-        )
+        .add_text_content(Role::User, prompt)
         .build();
 
     let queue = gemini.stream_generate_content(&request, "gemini-pro").await;

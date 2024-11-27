@@ -37,6 +37,10 @@ impl ContentBuilder {
         }
     }
 
+    pub fn add_text_part<T: Into<String>>(self, text: T) -> Self {
+        self.add_part(Part::Text(text.into()))
+    }
+
     pub fn add_part(mut self, part: Part) -> Self {
         match &mut self.content.parts {
             Some(parts) => parts.push(part),

@@ -18,17 +18,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let system_instruction = "Answer as if you were Yoda";
     let prompt = "What is the airspeed of an unladen swallow?";
 
-    let request = GenerateContentRequest {
-        contents: vec![Content {
-            role: Some(Role::User),
-            parts: Some(vec![Part::Text(prompt.to_string())]),
-        }],
-        system_instruction: Some(Content {
-            role: None,
-            parts: Some(vec![Part::Text(system_instruction.to_string())]),
-        }),
-        ..Default::default()
-    };
+    let request = GenerateContentRequest::builder()
+        .add_text_content(Role::User, prompt)
+        .system_instruction_text(system_instruction)
+        .build();
 
     let result = gemini
         .generate_content(&request, "gemini-1.0-pro-002")
