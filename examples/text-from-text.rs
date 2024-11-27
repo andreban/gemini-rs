@@ -14,10 +14,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         location_id,
     );
 
-    let prompt = "What is the airspeed of an unladen swallow?";
-    let request = GenerateContentRequest::builder()
-        .add_text_content(Role::User, prompt)
-        .build();
+    let prompt = vec![Content::builder()
+        .role(Role::User)
+        .add_text_part("What is the airspeed of an unladen swallow?")
+        .build()];
+
+    let request = GenerateContentRequest::builder().contents(prompt).build();
     let response = gemini.generate_content(&request, "gemini-pro").await?;
     println!("Response: {:?}", response.candidates[0].get_text().unwrap());
 

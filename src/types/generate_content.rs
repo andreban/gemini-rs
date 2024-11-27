@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use super::{Content, Role, VertexApiError};
+use super::{Content, VertexApiError};
 use crate::error::Result;
 
 #[derive(Clone, Default, Serialize, Deserialize)]
@@ -37,13 +37,8 @@ impl GenerateContentRequestBuilder {
         }
     }
 
-    pub fn add_text_content<T: Into<String>>(self, role: Role, text: T) -> Self {
-        let content = Content::builder().role(role).add_text_part(text).build();
-        self.add_content(content)
-    }
-
-    pub fn add_content(mut self, content: Content) -> Self {
-        self.request.contents.push(content);
+    pub fn contents(mut self, contents: Vec<Content>) -> Self {
+        self.request.contents = contents;
         self
     }
 
@@ -60,10 +55,6 @@ impl GenerateContentRequestBuilder {
     pub fn safety_settings(mut self, safety_settings: Vec<SafetySetting>) -> Self {
         self.request.safety_settings = Some(safety_settings);
         self
-    }
-
-    pub fn system_instruction_text<T: Into<String>>(self, text: T) -> Self {
-        self.system_instruction(Content::builder().add_text_part(text).build())
     }
 
     pub fn system_instruction(mut self, system_instruction: Content) -> Self {

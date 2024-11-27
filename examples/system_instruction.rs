@@ -15,12 +15,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         location_id,
     );
 
-    let system_instruction = "Answer as if you were Yoda";
-    let prompt = "What is the airspeed of an unladen swallow?";
+    let system_instruction = Content::builder()
+        .add_text_part("Answer as if you were Yoda")
+        .build();
+
+    let user_prompt = vec![Content::builder()
+        .role(Role::User)
+        .add_text_part("What is the airspeed of an unladen swallow?")
+        .build()];
 
     let request = GenerateContentRequest::builder()
-        .add_text_content(Role::User, prompt)
-        .system_instruction_text(system_instruction)
+        .contents(user_prompt)
+        .system_instruction(system_instruction)
         .build();
 
     let result = gemini

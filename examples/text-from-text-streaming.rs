@@ -14,10 +14,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         location_id,
     );
 
-    let prompt = "Tell me the story of the genesis of the universe as a bedtime story.";
-    let request = GenerateContentRequest::builder()
-        .add_text_content(Role::User, prompt)
-        .build();
+    let prompt = vec![Content::builder()
+        .role(Role::User)
+        .add_text_part("Tell me the story of the genesis of the universe as a bedtime story.")
+        .build()];
+
+    let request = GenerateContentRequest::builder().contents(prompt).build();
 
     let queue = gemini.stream_generate_content(&request, "gemini-pro").await;
 
