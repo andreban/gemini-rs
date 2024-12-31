@@ -51,7 +51,7 @@ pub struct TextEmbeddingPrediction {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TextEmbeddingResult {
     pub statistics: TextEmbeddingStatistics,
-    pub values: Vec<f32>,
+    pub values: Vec<f64>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
