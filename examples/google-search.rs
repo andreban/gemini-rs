@@ -23,7 +23,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             parts: Some(vec![Part::Text(prompt.to_string())]),
         }],
         tools: Some(vec![Tools {
-            google_search_retrieval: Some(GoogleSearchRetrieval::default()),
+            google_search: Some(GoogleSearch::default()),
             ..Default::default()
         }]),
         ..Default::default()
@@ -35,7 +35,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     let result = gemini
-        .generate_content(&request, "gemini-1.5-flash-002")
+        .generate_content(&request, "gemini-2.0-flash-001")
         .await?;
 
     println!("Response: {:?}", result.candidates[0].get_text().unwrap());

@@ -71,15 +71,39 @@ impl GenerateContentRequestBuilder {
 pub struct Tools {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub function_declarations: Option<Vec<FunctionDeclaration>>,
+
     #[serde(rename = "googleSearchRetrieval")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub google_search_retrieval: Option<GoogleSearchRetrieval>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub google_search: Option<GoogleSearch>,
+}
+
+#[derive(Clone, Default, Serialize, Deserialize)]
+pub struct GoogleSearch {}
+
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DynamicRetrievalConfig {
+    pub mode: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub dynamic_threshold: Option<f32>,
+}
+
+impl Default for DynamicRetrievalConfig {
+    fn default() -> Self {
+        Self {
+            mode: "MODE_DYNAMIC".to_string(),
+            dynamic_threshold: Some(0.7),
+        }
+    }
 }
 
 #[derive(Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GoogleSearchRetrieval {
-    pub disable_attribution: bool,
+    pub dynamic_retrieval_config: DynamicRetrievalConfig,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, Default)]
