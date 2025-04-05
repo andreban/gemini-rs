@@ -7,7 +7,6 @@ edition = "2021"
 
 [dependencies]
 deadqueue = "0.2"
-futures-util = "0.3"
 gcp_auth = "0.12"
 reqwest = { version = "0.12", features = ["json", "gzip"] }
 reqwest-eventsource = "0.6"
@@ -16,6 +15,7 @@ serde_json = { version = "1"}
 serde_with = { version = "3.9", features = ["base64"]}
 tracing = "0.1"
 tokio = { version = "1" }
+tokio-stream = "0.1.17"
 
 [dev-dependencies]
 console = "0.15.8"

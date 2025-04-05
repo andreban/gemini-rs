@@ -9,21 +9,16 @@ pub struct CountTokensRequest {
 
 impl CountTokensRequest {
     pub fn builder() -> CountTokensRequestBuilder {
-        CountTokensRequestBuilder::new()
+        CountTokensRequestBuilder::default()
     }
 }
 
+#[derive(Default)]
 pub struct CountTokensRequestBuilder {
     contents: Content,
 }
 
 impl CountTokensRequestBuilder {
-    pub fn new() -> Self {
-        CountTokensRequestBuilder {
-            contents: Content::default(),
-        }
-    }
-
     pub fn from_prompt(prompt: &str) -> Self {
         CountTokensRequestBuilder {
             contents: Content {

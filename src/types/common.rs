@@ -1,4 +1,4 @@
-use std::{collections::HashMap, str::FromStr, vec};
+use std::{collections::HashMap, fmt::Display, str::FromStr, vec};
 
 use serde::{Deserialize, Serialize};
 
@@ -22,21 +22,16 @@ impl Content {
     }
 
     pub fn builder() -> ContentBuilder {
-        ContentBuilder::new()
+        ContentBuilder::default()
     }
 }
 
+#[derive(Default)]
 pub struct ContentBuilder {
     content: Content,
 }
 
 impl ContentBuilder {
-    pub fn new() -> Self {
-        Self {
-            content: Default::default(),
-        }
-    }
-
     pub fn add_text_part<T: Into<String>>(self, text: T) -> Self {
         self.add_part(Part::Text(text.into()))
     }
@@ -66,12 +61,13 @@ pub enum Role {
     Model,
 }
 
-impl ToString for Role {
-    fn to_string(&self) -> String {
-        match self {
-            Role::User => "user".to_string(),
-            Role::Model => "model".to_string(),
-        }
+impl Display for Role {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let role_str = match self {
+            Role::User => "user",
+            Role::Model => "model",
+        };
+        f.write_str(role_str)
     }
 }
 

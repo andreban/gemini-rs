@@ -14,7 +14,8 @@ pub enum Error {
     Serde(serde_json::Error),
     VertexError(types::VertexApiError),
     NoCandidatesError,
-    EventSourceError(CannotCloneRequestError),
+    CannotCloneRequestError(CannotCloneRequestError),
+    EventSourceError(reqwest_eventsource::Error),
 }
 
 impl Display for Error {
@@ -29,6 +30,9 @@ impl Display for Error {
             }
             Error::NoCandidatesError => {
                 write!(f, "No candidates returned for the prompt")
+            }
+            Error::CannotCloneRequestError(e) => {
+                write!(f, "Cannot clone request: {}", e)
             }
             Error::EventSourceError(e) => {
                 write!(f, "EventSourrce Error: {}", e)
@@ -71,6 +75,12 @@ impl From<types::VertexApiError> for Error {
 
 impl From<CannotCloneRequestError> for Error {
     fn from(e: CannotCloneRequestError) -> Self {
+        Error::CannotCloneRequestError(e)
+    }
+}
+
+impl From<reqwest_eventsource::Error> for Error {
+    fn from(e: reqwest_eventsource::Error) -> Self {
         Error::EventSourceError(e)
     }
 }

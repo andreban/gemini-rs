@@ -1,4 +1,5 @@
 use gemini_rs::prelude::*;
+use tokio_stream::StreamExt;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -21,22 +22,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let request = GenerateContentRequest::builder().contents(prompt).build();
 
-    let queue = gemini.stream_generate_content(&request, "gemini-pro").await;
+    let mut queue = gemini
+        .generate_content_stream(&request, "gemini-2.0-flash-001")
+        .await?;
 
-    while let Some(response) = queue.pop().await {
-        match response {
-            Ok(result) => {
-                let text = result
-                    .candidates
-                    .iter()
-                    .filter_map(|c| c.get_text())
-                    .collect::<String>();
-                print!("{}", text);
-            }
-            Err(error) => {
-                println!("{error}");
-            }
-        }
+    while let Some(Ok(response)) = queue.next().await {
+        println!("Response: {:?}", response);
     }
 
     Ok(())
