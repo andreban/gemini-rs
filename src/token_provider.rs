@@ -7,7 +7,7 @@ pub trait TokenProvider {
         -> impl std::future::Future<Output = Result<String>> + Send;
 }
 
-impl TokenProvider for Arc<dyn gcp_auth::TokenProvider> {
+impl TokenProvider for Arc<dyn gcp_auth::TokenProvider + '_> {
     async fn get_token(&self, scope: &[&str]) -> Result<String> {
         let token = self.token(scope).await;
         match token {
