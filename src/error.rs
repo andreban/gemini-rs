@@ -16,6 +16,7 @@ pub enum Error {
     NoCandidatesError,
     CannotCloneRequestError(CannotCloneRequestError),
     EventSourceError(reqwest_eventsource::Error),
+    EventSourceClosedError,
 }
 
 impl Display for Error {
@@ -36,6 +37,9 @@ impl Display for Error {
             }
             Error::EventSourceError(e) => {
                 write!(f, "EventSourrce Error: {}", e)
+            }
+            Error::EventSourceClosedError => {
+                write!(f, "EventSource closed error")
             }
         }
     }

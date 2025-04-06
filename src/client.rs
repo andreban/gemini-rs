@@ -68,6 +68,9 @@ impl<T: TokenProvider + Clone> GeminiClient<T> {
         let mapped = event_source.filter_map(|event| {
             let event = match event {
                 Ok(event) => event,
+                Err(reqwest_eventsource::Error::StreamEnded) => {
+                    return Some(Err(Error::EventSourceClosedError))
+                }
                 Err(e) => return Some(Err(e.into())),
             };
 
