@@ -126,7 +126,7 @@ pub struct PredictImageRequestParameters {
     /// Supported by the models `imagen-3.0-generate-001`, `imagen-3.0-fast-generate-001`, and
     /// `imagegeneration@006` only.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub safety_setting: Option<String>,
+    pub safety_setting: Option<PredictImageSafetySetting>,
 
     /// Add an invisible watermark to the generated images. The default value is `false` for the
     /// `imagegeneration@002` and `imagegeneration@005` models, and `true` for the
@@ -175,4 +175,13 @@ pub enum PersonGeneration {
     DontAllow,
     AllowAdult,
     AllowAll,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PredictImageSafetySetting {
+    BlockLowAndAbove,
+    BlockMediumAndAbove,
+    BlockOnlyHigh,
+    BlockNone,
 }

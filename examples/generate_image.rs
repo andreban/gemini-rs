@@ -3,6 +3,7 @@ use std::{error::Error, io::Cursor};
 use gemini_rs::prelude::{
     GeminiClient, PersonGeneration, PredictImageRequest, PredictImageRequestParameters,
     PredictImageRequestParametersOutputOptions, PredictImageRequestPrompt,
+    PredictImageSafetySetting,
 };
 use image::{ImageFormat, ImageReader};
 
@@ -35,6 +36,7 @@ pub async fn main() -> Result<(), Box<dyn Error>> {
                 compression_quality: Some(75),
             }),
             person_generation: Some(PersonGeneration::AllowAll),
+            safety_setting: Some(PredictImageSafetySetting::BlockOnlyHigh),
             ..Default::default()
         },
     };
