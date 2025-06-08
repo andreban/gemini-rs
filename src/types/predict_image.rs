@@ -37,6 +37,12 @@ pub struct PredictImageRequestParameters {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub seed: Option<u32>,
 
+    /// Optional. An optional parameter to use an LLM-based prompt rewriting feature to deliver
+    /// higher quality images that better reflect the original prompt's intent. Disabling this
+    /// feature may impact image quality and prompt adherence
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub enhance_prompt: Option<bool>,
+
     /// A description of what to discourage in the generated images.
     /// The following models support this parameter:
     ///  - `imagen-3.0-generate-001`: up to 480 tokens.
@@ -86,6 +92,23 @@ pub struct PredictImageRequestParameters {
     /// `imagegeneration@006` only.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub person_generation: Option<String>,
+
+    /// Optional. The language code that corresponds to your text prompt language.
+    /// The following values are supported:
+    ///  - auto: Automatic detection. If Imagen detects a supported language, the prompt and an
+    ///          optional negative prompt are translated to English. If the language detected isn't
+    ///          supported, Imagen uses the input text verbatim, which might result in an unexpected
+    ///          output. No error code is returned.
+    ///  - en: English (if omitted, the default value)
+    ///  - zh or zh-CN: Chinese (simplified)
+    ///  - zh-TW: Chinese (traditional)
+    ///  - hi: Hindi
+    ///  - ja: Japanese
+    ///  - ko: Korean
+    ///  - pt: Portuguese
+    ///  - es: Spanish
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub language: Option<String>,
 
     /// Adds a filter level to safety filtering. The following values are supported:
     ///  - `"block_most"`: Strongest filtering level, most strict blocking.
