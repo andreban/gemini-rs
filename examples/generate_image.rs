@@ -1,7 +1,7 @@
 use std::{error::Error, io::Cursor};
 
 use gemini_rs::prelude::{
-    GeminiClient, PredictImageRequest, PredictImageRequestParameters,
+    GeminiClient, PersonGeneration, PredictImageRequest, PredictImageRequestParameters,
     PredictImageRequestParametersOutputOptions, PredictImageRequestPrompt,
 };
 use image::{ImageFormat, ImageReader};
@@ -34,9 +34,13 @@ pub async fn main() -> Result<(), Box<dyn Error>> {
                 mime_type: Some("image/jpeg".to_string()),
                 compression_quality: Some(75),
             }),
+            person_generation: Some(PersonGeneration::AllowAll),
             ..Default::default()
         },
     };
+
+    println!("Request: {:#?}", serde_json::to_string(&request).unwrap());
+
     let mut result = gemini
         .predict_image(&request, "imagen-3.0-fast-generate-001")
         .await?;
